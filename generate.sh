@@ -19,10 +19,7 @@ get_days_exp() {
 verifyssl() {
         local regex="^http:\/\/(.*)/$"
         local regexResp=$SSLCRT": ([a-zA-Z]*)"
-        #openssl verify $SSLCA
-        #openssl verify -CAfile $SSLCA $SSLCRT
         local elhash=$(openssl x509 -noout -issuer_hash -in $SSLCA)
-        #ls -l /etc/ssl/certs/$elhash* | cut -d ' ' -f 9-11
         local ocspURL=$(openssl x509 -noout -ocsp_uri -in $SSLCRT)
         local ocspHOST=$(if [[ $ocspURL =~ $regex ]]; then thehost="${BASH_REMATCH[1]}"; echo $thehost; fi);
         local verifyResponse=$(openssl ocsp -issuer $SSLCA -cert $SSLCRT -CAfile $SSLCA -no_nonce -header Host $ocspHOST -url $ocspURL -text)
@@ -46,9 +43,8 @@ if [ -e $SSLCRT ]; then
         statusOCSP=$(verifyssl)
         generatekeystore
         if [ "$statusOCSP" == "good" ] && [ $DAYS_EXP -gt 2 ]; then
-                        echo "Valid certificate";
-                        exit 0;
-                #fi
+                echo "Valid certificate";
+                exit 0;
         fi
         if [ $DAYS_EXP -gt 0 ]; then
                 echo "Remain $DAYS_EXP day(s)"
