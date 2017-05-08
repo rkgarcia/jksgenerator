@@ -35,13 +35,13 @@ generatekeystore() {
         echo "Java Keystore successully created at $JKSDIR$JKSNAME"
         echo "Deleting temporary files"
         rm /tmp/$TMPNAME.*
+        /etc/init.d/tomcat7 restart
 }
 
 if [ -e $SSLCRT ]; then
         echo "Cert file exists for domain $DOMAIN"
         get_days_exp "$SSLCRT"
         statusOCSP=$(verifyssl)
-        generatekeystore
         if [ "$statusOCSP" == "good" ] && [ $DAYS_EXP -gt 2 ]; then
                 echo "Valid certificate";
                 exit 0;
